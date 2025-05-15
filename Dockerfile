@@ -2,10 +2,10 @@
 FROM node:20-alpine AS frontend-build
 RUN apk update && apk add --no-cache git python3 make g++
 WORKDIR /app
-COPY frontend/package.json frontend/yarn.lock ./
-RUN yarn install
+COPY frontend/package.json ./
+RUN npm install
 COPY frontend/ .
-RUN yarn build
+RUN npm run build
 
 # Stage 2: Install Python dependencies & copy backend
 FROM python:3.11-slim AS backend-build
