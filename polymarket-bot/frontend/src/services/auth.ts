@@ -1,1 +1,0 @@
-// Placeholder for future auth logic (e.g., JWT handling)
