@@ -1,0 +1,22 @@
+services:
+  - type: web_service
+    name: backend
+    env: docker
+    repo: https://github.com/swatson124455/autobetter
+    branch: main
+    dockerfilePath: backend/Dockerfile
+    port: 8000
+    envVars:
+      - key: WALLET_PRIVATE_KEY
+      - key: POLYMARKET_API_KEY
+      - key: DATABASE_URL
+      - key: KELLY_FRACTION
+      - key: INFURA_ID
+
+  - type: web_service
+    name: frontend
+    env: docker
+    repo: https://github.com/swatson124455/autobetter
+    branch: main
+    dockerfilePath: frontend/Dockerfile
+    port: 3000
