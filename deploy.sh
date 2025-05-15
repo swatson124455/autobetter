@@ -1,23 +1,21 @@
 #!/usr/bin/env bash
 set -e
 
-# Ensure .env exists
-if [ ! -f .env ]; then
-  echo ".env file not found—please copy .env.example to .env"
-  exit 1
+# Auto-copy .env from example if missing
+if [ ! -f .env ] && [ -f .env.example ]; then
+  echo "Creating .env from .env.example"
+  cp .env.example .env
 fi
 
 # Build images
 echo "🔨 Building backend image..."
-docker build -f backend/Dockerfile -t polymarket-backend .
-echo "🔨 Building frontend image..."
-docker build -f frontend/Dockerfile -t polymarket-frontend frontend/
+docker build -f Dockerfile -t polymarket-bot .
+ 
+# Launch container
+echo "🚀 Running container..."
+docker run -d -p 8000:8000 --env-file .env polymarket-bot
 
-# Launch services
-echo "🚀 Starting services via docker-compose..."
-docker-compose up -d
-
-# Wait for backend health check
+# Health check
 echo -n "⏳ Waiting for backend health to be OK"
 for i in {1..10}; do
   STATUS=$(curl -s http://localhost:8000/health || echo "")
@@ -30,11 +28,10 @@ for i in {1..10}; do
   fi
 done
 
-# Final status
 if [[ "$STATUS" == *"ok"* ]]; then
-  echo "🎉 All services are up!"
-  echo "Visit http://localhost:3000 to open the Dashboard."
+  echo "🎉 App is live at http://localhost:8000 (React served at root)"
 else
-  echo "❌ Backend never became healthy. Check logs with: docker-compose logs -f"
+  echo "❌ Backend never became healthy."
+  docker logs $(docker ps -q --filter ancestor=polymarket-bot)
   exit 1
 fi
