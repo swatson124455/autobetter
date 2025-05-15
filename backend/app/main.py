@@ -1,16 +1,19 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
+from app.config import settings
 from app.services.poller import start_poller
-from app.routers import markets, trades
 
 app = FastAPI()
-app.include_router(markets.router)
-app.include_router(trades.router)
-app.mount('/', StaticFiles(directory='app/frontend_build', html=True), name='frontend')
+import os
+
+# Serve static frontend
+app.mount("/", StaticFiles(directory="frontend_build", html=True), name="frontend")
 
 @app.on_event('startup')
 def on_startup():
-    start_poller()
+    # Only start poller if all required settings present
+    if settings.WALLET_PRIVATE_KEY and settings.POLYMARKET_API_KEY and settings.INFURA_ID:
+        start_poller()
 
 @app.get('/health')
 def health():
